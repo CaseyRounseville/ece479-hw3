@@ -57,18 +57,10 @@ int heuristic3(State *currState, State *goalState);
  */
 void createNewPaths(std::vector<AStarNode *> *queue, AStarNode *terminal);
 
-class UnorderedSetStateHasher {
-    public:
-        const size_t operator()(const State &state) const;
-};
-
 /**
  * reject all new paths with loops
  */
-void removeNewPathsWithLoops(
-    std::vector<AStarNode *> *queue,
-    std::unordered_set<State, UnorderedSetStateHasher> *statesSeenSoFar
-);
+void removeNewPathsWithLoops(std::vector<AStarNode *> *queue);
 
 /**
  * if two or more paths reach a common node, delete all those paths except the

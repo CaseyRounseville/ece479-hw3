@@ -12,8 +12,8 @@ void astar(
     // create the astar tree
     AStarTree tree(initialState);
 
-    // keep track of all states that have already been seen
-    std::unordered_set<State, UnorderedSetStateHasher> statesSeenSoFar;
+    // keep track of all states that have already been expanded
+    std::unordered_set<State, UnorderedSetStateHasher> statesExpandedSoFar;
 
     // step 1
     // form a one-element queue consisting of a zero-length path that contains
@@ -29,7 +29,7 @@ void astar(
         queue.size() > 0 &&
         *queue.at(0)->getState() != *goalState
     ) {
-        std::cout << "num expanded nodes " << statesSeenSoFar.size() << std::endl;
+        std::cout << "num expanded nodes " << statesExpandedSoFar.size() << std::endl;
         // step 2.1
         // remove the first path from the queue
         AStarNode *firstNode = queue.at(0);
@@ -38,14 +38,14 @@ void astar(
         // create new paths by extending the first path to all neighbors of the
         // terminal node;
         // don't expand the node if we have already expanded it previously
-        if (statesSeenSoFar.find(*firstNode->getState()) != statesSeenSoFar.end()) {
+        if (statesExpandedSoFar.find(*firstNode->getState()) != statesExpandedSoFar.end()) {
             continue;
         }
         createNewPaths(&queue, firstNode);
 
         // step 2.2
         // reject all new paths with loops
-        removeNewPathsWithLoops(&queue, &statesSeenSoFar);
+        removeNewPathsWithLoops(&queue);
 
         // step 2.3
         // if two or more paths reach a common node, delete all those paths
@@ -59,7 +59,7 @@ void astar(
         sortQueue(&queue, goalState, heuristicFunction);
 
         // we have now expanded firstNode's state
-        statesSeenSoFar.insert(*firstNode->getState());
+        statesExpandedSoFar.insert(*firstNode->getState());
     }
 
     // step 3
@@ -211,23 +211,7 @@ void createNewPaths(std::vector<AStarNode *> *queue, AStarNode *terminal) {
     }
 }
 
- const size_t UnorderedSetStateHasher::operator()(const State &state) const {
-    size_t hash = 0;
-    for (unsigned int row = 0; row < BOARD_SIZE; row++) {
-        for (unsigned int col; col < BOARD_SIZE; col++) {
-            int tile = state.getTile(row, col);
-            if (tile != EMPTY_TILE) {
-                hash += tile * row * col;
-            }
-        }
-    }
-    return hash;
-}
-
-void removeNewPathsWithLoops(
-    std::vector<AStarNode *> *queue,
-    std::unordered_set<State, UnorderedSetStateHasher> *statesSeenSoFar
-) {
+void removeNewPathsWithLoops(std::vector<AStarNode *> *queue) {
     // a new path has a loop if the most recent state we added has been
     // encountered before
     for (
@@ -240,21 +224,26 @@ void removeNewPathsWithLoops(
         AStarNode *terminal = queue->at(terminalIdx);
         State *terminalState = terminal->getState();
 
-        // check the state of the terminal node against the states of all nodes
-        // that came before it to detect a loop
-        AStarNode *currAncestor = terminal->getParent();
-        while (currAncestor != nullptr) {
-            if (*currAncestor->getState() == *terminalState) {
-                // we have detected a loop, so remove the terminal from the
-                // queue
-                queue->erase(queue->begin() + terminalIdx);
-                terminalIdx--;
-                break;
-            }
-
-            // move up the tree by one move
-            currAncestor = currAncestor->getParent();
+        if (terminal->getPreviousStates()->find(*terminalState) != terminal->getPreviousStates()->end()) {
+            queue->erase(queue->begin() + terminalIdx);
+            terminalIdx--;
         }
+
+        // // check the state of the terminal node against the states of all nodes
+        // // that came before it to detect a loop
+        // AStarNode *currAncestor = terminal->getParent();
+        // while (currAncestor != nullptr) {
+        //     if (*currAncestor->getState() == *terminalState) {
+        //         // we have detected a loop, so remove the terminal from the
+        //         // queue
+        //         queue->erase(queue->begin() + terminalIdx);
+        //         terminalIdx--;
+        //         break;
+        //     }
+
+        //     // move up the tree by one move
+        //     currAncestor = currAncestor->getParent();
+        // }
     }
 }
 

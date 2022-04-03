@@ -13,6 +13,17 @@ AStarNode::AStarNode(Operator op, State *state, AStarNode *parent) {
     // initialize the cached path length to -1 so we will know if it has been
     // computed yet or not (the minimum is zero if it was computed)
     this->cachedPathLength = -1;
+
+    // copy the parent's previous states, plus the parent's state, into this
+    // node's previous states;
+    // be careful if the parent is null
+    if (parent != nullptr) {
+        this->previousStates.insert(
+            parent->getPreviousStates()->begin(),
+            parent->getPreviousStates()->end()
+        );
+        this->previousStates.insert(*parent->getState());
+    }
 }
 
 Operator AStarNode::getOp() {
@@ -29,6 +40,10 @@ AStarNode *AStarNode::getParent() {
 
 std::vector<AStarNode *> *AStarNode::getChildren() {
     return &this->children;
+}
+
+std::unordered_set<State, UnorderedSetStateHasher> *AStarNode::getPreviousStates() {
+    return &this->previousStates;
 }
 
 void AStarNode::addChild(AStarNode *child) {

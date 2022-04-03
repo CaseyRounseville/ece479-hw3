@@ -62,6 +62,11 @@ class State {
         ~State();
 };
 
+class UnorderedSetStateHasher {
+    public:
+        const size_t operator()(const State &state) const;
+};
+
 std::string stringifyTile(int tile);
 
 #endif

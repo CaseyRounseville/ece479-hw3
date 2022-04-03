@@ -1,6 +1,7 @@
 #ifndef ASTAR_NODE_H
 #define ASTAR_NODE_H
 
+#include <unordered_set>
 #include <vector>
 
 #include "State.h"
@@ -32,6 +33,9 @@ class AStarNode {
         // each call (we know it will never change)
         int cachedPathLength;
 
+        // save a set of all states leading up to this one
+        std::unordered_set<State, UnorderedSetStateHasher> previousStates;
+
     public:
         AStarNode(Operator op, State *state, AStarNode *parent);
 
@@ -40,6 +44,7 @@ class AStarNode {
         State *getState();
         AStarNode *getParent();
         std::vector<AStarNode *> *getChildren();
+        std::unordered_set<State, UnorderedSetStateHasher> *getPreviousStates();
 
         /**
          * add the specified child node as a child of this node

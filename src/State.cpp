@@ -83,6 +83,23 @@ State::~State() {
     // nothing
 }
 
+const size_t UnorderedSetStateHasher::operator()(const State &state) const {
+    size_t hash = 0;
+    for (unsigned int row = 0; row < BOARD_SIZE; row++) {
+        for (unsigned int col; col < BOARD_SIZE; col++) {
+            int tile = state.getTile(row, col);
+            int cell = row * BOARD_SIZE + col;
+            if (tile != EMPTY_TILE) {
+                // non empty tiles are 1 through 8, and we can encode a tile's
+                // position 0 through 8 with just 4 bits, and pack all that
+                // information in 32 bits
+                hash |= cell << ((tile - 1) * 4);
+            }
+        }
+    }
+    return hash;
+}
+
 std::string stringifyTile(int tile) {
     if (tile == EMPTY_TILE) {
         return "-";

@@ -52,9 +52,9 @@ int main(int argc, char **argv) {
         { 7, -1, 5 }
     };
     int goalBoard[BOARD_SIZE][BOARD_SIZE] = {
-        { 1, 2, 3 },
+        { 5, 2, 3 },
         { 8, -1, 4 },
-        { 7, 6, 5 }
+        { 7, 6, 1 }
     };
 
     // create initial state and goal state
