@@ -192,7 +192,7 @@ void astarPlayerGame(State *initialState, State *goalState) {
 
     std::cout << "winning moves:" << std::endl;
     std::vector<Operator> winningMoves;
-    astar(initialState, goalState, heuristic1, &winningMoves);
+    astar(initialState, goalState, heuristic3, &winningMoves);
     for (unsigned int i = 0; i < winningMoves.size(); i++) {
         std::cout << stringifyOperator(winningMoves.at(i)) << std::endl;
     }

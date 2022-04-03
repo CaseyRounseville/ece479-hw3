@@ -44,6 +44,11 @@ int heuristic1(State *currState, State *goalState);
 int heuristic2(State *currState, State *goalState);
 
 /**
+ * (TODO) another heuristic
+ */
+int heuristic3(State *currState, State *goalState);
+
+/**
  * create new paths by extending the first path to all neighbors of the
  * terminal node
  * 

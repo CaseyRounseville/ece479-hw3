@@ -29,7 +29,7 @@ void astar(
         queue.size() > 0 &&
         *queue.at(0)->getState() != *goalState
     ) {
-        std::cout << "queue size is " << queue.size() << std::endl;
+        std::cout << "num expanded nodes " << statesSeenSoFar.size() << std::endl;
         // step 2.1
         // remove the first path from the queue
         AStarNode *firstNode = queue.at(0);
@@ -37,6 +37,10 @@ void astar(
 
         // create new paths by extending the first path to all neighbors of the
         // terminal node;
+        // don't expand the node if we have already expanded it previously
+        if (statesSeenSoFar.find(*firstNode->getState()) != statesSeenSoFar.end()) {
+            continue;
+        }
         createNewPaths(&queue, firstNode);
 
         // step 2.2
@@ -105,7 +109,52 @@ int heuristic1(State *currState, State *goalState) {
 }
 
 int heuristic2(State *currState, State *goalState) {
-    return 0;
+    int manhattanDistance = 0;
+    for (unsigned int row = 0; row < BOARD_SIZE; row++) {
+        for (unsigned int col = 0; col < BOARD_SIZE; col++) {
+            int currStateTile = currState->getTile(row, col);
+
+            // make sure to not count the empty tile
+            if (currStateTile == EMPTY_TILE) {
+                continue;
+            }
+
+            int goalRow;
+            int goalCol;
+            bool foundTile = false;
+            for (goalRow = 0; goalRow < BOARD_SIZE; goalRow++) {
+                for (goalCol = 0; goalCol < BOARD_SIZE; goalCol++) {
+                    if (goalState->getTile(goalRow, goalCol) == currStateTile) {
+                        foundTile = true;
+                        break;
+                    }
+                }
+                if (foundTile) {
+                    break;
+                }
+            }
+
+            int rowDiff = row - goalRow;
+            if (rowDiff < 0) {
+                rowDiff = -rowDiff;
+            }
+
+            int colDiff = col - goalCol;
+            if (colDiff < 0) {
+                colDiff = -colDiff;
+            }
+
+            manhattanDistance += rowDiff + colDiff;
+        }
+    }
+    return manhattanDistance;
+}
+
+/**
+ * (TODO) another heuristic
+ */
+int heuristic3(State *currState, State *goalState) {
+    return heuristic1(currState, goalState) + heuristic2(currState, goalState);
 }
 
 void createNewPaths(std::vector<AStarNode *> *queue, AStarNode *terminal) {
@@ -190,11 +239,6 @@ void removeNewPathsWithLoops(
         // node for that path in the queue
         AStarNode *terminal = queue->at(terminalIdx);
         State *terminalState = terminal->getState();
-
-        // if (statesSeenSoFar->find(*terminalState) != statesSeenSoFar->end()) {
-        //     queue->erase(queue->begin() + terminalIdx);
-        //     terminalIdx--;
-        // }
 
         // check the state of the terminal node against the states of all nodes
         // that came before it to detect a loop

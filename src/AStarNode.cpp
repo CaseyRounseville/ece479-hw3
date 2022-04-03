@@ -39,11 +39,11 @@ int AStarNode::getPathLength() {
     // check if we have already computed the path length, otherwise we will
     // need to compute it, and then save the value for next time this function
     // is called
-    if (cachedPathLength > -1) {
-        return cachedPathLength;
+    if (this->cachedPathLength > -1) {
+        return this->cachedPathLength;
     }
 
-    if (this->parent == nullptr) {
+    if (this->getParent() == nullptr) {
         // root node has path length of zero
         this->cachedPathLength = 0;
         return this->cachedPathLength;
@@ -51,7 +51,7 @@ int AStarNode::getPathLength() {
 
     // this is not the root node, so we know that the path length of this node
     // is one more than its parent's
-    this->cachedPathLength = this->parent->getPathLength() + 1;
+    this->cachedPathLength = this->getParent()->getPathLength() + 1;
     return this->cachedPathLength;
 }
 
