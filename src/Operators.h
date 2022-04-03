@@ -3,6 +3,13 @@
 
 #include "State.h"
 
+enum Operator {
+    OP_MOVE_UP,
+    OP_MOVE_DOWN,
+    OP_MOVE_LEFT,
+    OP_MOVE_RIGHT
+};
+
 bool canMoveEmptyTileUp(State *currState);
 bool canMoveEmptyTileDown(State *currState);
 bool canMoveEmptyTileLeft(State *currState);

@@ -59,6 +59,24 @@ int State::getTile(int row, int col) {
     return this->board[row][col];
 }
 
+bool State::operator==(State &other) {
+    for (unsigned int row = 0; row < BOARD_SIZE; row++) {
+        for (unsigned int col = 0; col < BOARD_SIZE; col++) {
+            if (this->getTile(row, col) != other.getTile(row, col)) {
+                // found a difference in the board
+                return false;
+            }
+        }
+    }
+
+    // no differences in the board
+    return true;
+}
+
+bool State::operator!=(State &other) {
+    return !(*this == other);
+}
+
 State::~State() {
     // nothing
 }

@@ -24,6 +24,9 @@ class State {
         int getEmptyTileCol();
         int getTile(int row, int col);
 
+        bool operator==(State &other);
+        bool operator!=(State &other);
+
         ~State();
 };
 
