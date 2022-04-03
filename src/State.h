@@ -4,6 +4,8 @@
 #define BOARD_SIZE 3
 #define EMPTY_TILE -1
 
+#include <string>
+
 /**
  * a class to represent a state in the 8 puzzle game; this consists of keeping
  * track of where all the tiles are on the board, including the empty tile
@@ -49,15 +51,17 @@ class State {
         State(State *base, int newEmptyTileRow, int newEmptyTileCol);
 
         // getters
-        int getEmptyTileRow();
-        int getEmptyTileCol();
-        int getTile(int row, int col);
+        int getEmptyTileRow() const;
+        int getEmptyTileCol() const;
+        int getTile(int row, int col) const;
 
         // operator overloads for equals and not equals
-        bool operator==(State &other);
-        bool operator!=(State &other);
+        bool operator==(const State &other) const;
+        bool operator!=(const State &other) const;
 
         ~State();
 };
+
+std::string stringifyTile(int tile);
 
 #endif

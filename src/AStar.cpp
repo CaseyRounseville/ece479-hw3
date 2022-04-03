@@ -11,6 +11,10 @@ void astar(
 ) {
     // create the astar tree
     AStarTree tree(initialState);
+
+    // keep track of all states that have already been seen
+    std::unordered_set<State, UnorderedSetStateHasher> statesSeenSoFar;
+
     // step 1
     // form a one-element queue consisting of a zero-length path that contains
     // only the root node
@@ -25,6 +29,7 @@ void astar(
         queue.size() > 0 &&
         *queue.at(0)->getState() != *goalState
     ) {
+        std::cout << "queue size is " << queue.size() << std::endl;
         // step 2.1
         // remove the first path from the queue
         AStarNode *firstNode = queue.at(0);
@@ -36,7 +41,7 @@ void astar(
 
         // step 2.2
         // reject all new paths with loops
-        removeNewPathsWithLoops(&queue);
+        removeNewPathsWithLoops(&queue, &statesSeenSoFar);
 
         // step 2.3
         // if two or more paths reach a common node, delete all those paths
@@ -48,6 +53,9 @@ void astar(
         // lower-bound estimate of the cost remaining, with least-cost paths in
         // front
         sortQueue(&queue, goalState, heuristicFunction);
+
+        // we have now expanded firstNode's state
+        statesSeenSoFar.insert(*firstNode->getState());
     }
 
     // step 3
@@ -154,7 +162,23 @@ void createNewPaths(std::vector<AStarNode *> *queue, AStarNode *terminal) {
     }
 }
 
-void removeNewPathsWithLoops(std::vector<AStarNode *> *queue) {
+ const size_t UnorderedSetStateHasher::operator()(const State &state) const {
+    size_t hash = 0;
+    for (unsigned int row = 0; row < BOARD_SIZE; row++) {
+        for (unsigned int col; col < BOARD_SIZE; col++) {
+            int tile = state.getTile(row, col);
+            if (tile != EMPTY_TILE) {
+                hash += tile * row * col;
+            }
+        }
+    }
+    return hash;
+}
+
+void removeNewPathsWithLoops(
+    std::vector<AStarNode *> *queue,
+    std::unordered_set<State, UnorderedSetStateHasher> *statesSeenSoFar
+) {
     // a new path has a loop if the most recent state we added has been
     // encountered before
     for (
@@ -167,21 +191,26 @@ void removeNewPathsWithLoops(std::vector<AStarNode *> *queue) {
         AStarNode *terminal = queue->at(terminalIdx);
         State *terminalState = terminal->getState();
 
-        // check the state of the terminal node against the states of all nodes
-        // that came before it to detect a loop
-        AStarNode *currAncestor = terminal->getParent();
-        while (currAncestor != nullptr) {
-            if (*currAncestor->getState() == *terminalState) {
-                // we have detected a loop, so remove the terminal from the
-                // queue
-                queue->erase(queue->begin() + terminalIdx);
-                terminalIdx--;
-                break;
-            }
-
-            // move up the tree by one move
-            currAncestor = currAncestor->getParent();
+        if (statesSeenSoFar->find(*terminalState) != statesSeenSoFar->end()) {
+            queue->erase(queue->begin() + terminalIdx);
+            terminalIdx--;
         }
+
+        // // check the state of the terminal node against the states of all nodes
+        // // that came before it to detect a loop
+        // AStarNode *currAncestor = terminal->getParent();
+        // while (currAncestor != nullptr) {
+        //     if (*currAncestor->getState() == *terminalState) {
+        //         // we have detected a loop, so remove the terminal from the
+        //         // queue
+        //         queue->erase(queue->begin() + terminalIdx);
+        //         terminalIdx--;
+        //         break;
+        //     }
+
+        //     // move up the tree by one move
+        //     currAncestor = currAncestor->getParent();
+        // }
     }
 }
 
@@ -212,7 +241,7 @@ void removeCostlierDuplicatesFromQueue(std::vector<AStarNode *> *queue) {
             AStarNode *compareNode = queue->at(compareIdx);
 
             if (
-                compareNode->getState() == baseLineNode->getState() &&
+                *compareNode->getState() == *baseLineNode->getState() &&
                 compareNode->getPathLength() < baseLineNode->getPathLength()
             ) {
                 // we have found a node that arrives at the same state as the
@@ -221,8 +250,8 @@ void removeCostlierDuplicatesFromQueue(std::vector<AStarNode *> *queue) {
                 // removing an element from a list shifts the elements after it
                 // to the left by one index
                 queue->erase(queue->begin() + baseLineIdx);
+                baseLineIdx--;
                 compareIdx--;
-                baseLineIdx = compareIdx;
                 baseLineNode = compareNode;
             }
         }

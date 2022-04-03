@@ -1,5 +1,7 @@
 #include "State.h"
 
+#include <sstream>
+
 void State::loadBoard(int board[BOARD_SIZE][BOARD_SIZE]) {
     for (unsigned int row = 0; row < BOARD_SIZE; row++) {
         for (unsigned int col = 0; col < BOARD_SIZE; col++) {
@@ -47,19 +49,19 @@ State::State(State *base, int newEmptyTileRow, int newEmptyTileCol) {
     this->emptyTileCol = newEmptyTileCol;
 }
 
-int State::getEmptyTileRow() {
+int State::getEmptyTileRow() const {
     return this->emptyTileRow;
 }
 
-int State::getEmptyTileCol() {
+int State::getEmptyTileCol() const {
     return this->emptyTileCol;
 }
 
-int State::getTile(int row, int col) {
+int State::getTile(int row, int col) const {
     return this->board[row][col];
 }
 
-bool State::operator==(State &other) {
+bool State::operator==(const State &other) const {
     for (unsigned int row = 0; row < BOARD_SIZE; row++) {
         for (unsigned int col = 0; col < BOARD_SIZE; col++) {
             if (this->getTile(row, col) != other.getTile(row, col)) {
@@ -73,10 +75,20 @@ bool State::operator==(State &other) {
     return true;
 }
 
-bool State::operator!=(State &other) {
+bool State::operator!=(const State &other) const {
     return !(*this == other);
 }
 
 State::~State() {
     // nothing
+}
+
+std::string stringifyTile(int tile) {
+    if (tile == EMPTY_TILE) {
+        return "-";
+    } else {
+        std::stringstream ss;
+        ss << tile;
+        return ss.str();
+    }
 }

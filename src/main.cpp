@@ -24,6 +24,7 @@ Operator readMoveFromUser();
 
 // astar player
 void astarPlayerGame(State *initialState, State *goalState);
+void astarDisplay(State *initialstate, std::vector<Operator> *moves);
 
 int main(int argc, char **argv) {
     // handle command line arguments
@@ -46,14 +47,14 @@ int main(int argc, char **argv) {
 
     // initial and final boards
     int initialBoard[BOARD_SIZE][BOARD_SIZE] = {
-        { 1, 2, 3 },
-        { 4, 5, 6 },
-        { 7, 8, -1 }
+        { 2, 8, 3 },
+        { 1, 6, 4 },
+        { 7, -1, 5 }
     };
     int goalBoard[BOARD_SIZE][BOARD_SIZE] = {
-        { -1, 1, 2 },
-        { 4, 5, 3 },
-        { 7, 8, 6 }
+        { 1, 2, 3 },
+        { 8, -1, 4 },
+        { 7, 6, 5 }
     };
 
     // create initial state and goal state
@@ -81,11 +82,7 @@ void printState(State *state) {
     for (unsigned int row = 0; row < BOARD_SIZE; row++) {
         for (unsigned int col = 0; col < BOARD_SIZE; col++) {
             int tile = state->getTile(row, col);
-            if (tile == EMPTY_TILE) {
-                std::cout << "-" << " ";
-            } else {
-                std::cout << tile << " ";
-            }
+            std::cout << stringifyTile(tile) << " ";
         }
         std::cout << std::endl;
     }
@@ -199,4 +196,149 @@ void astarPlayerGame(State *initialState, State *goalState) {
     for (unsigned int i = 0; i < winningMoves.size(); i++) {
         std::cout << stringifyOperator(winningMoves.at(i)) << std::endl;
     }
+
+    astarDisplay(initialState, &winningMoves);
+}
+
+void astarDisplay(State *initialstate, std::vector<Operator> *moves) {
+    std::vector<State> states;
+
+    State currState = *initialstate;
+    states.push_back(currState);
+
+    for (unsigned int i = 0; i < moves->size(); i++) {
+        Operator currMove = moves->at(i);
+        switch (currMove) {
+            case OP_NONE:
+                // this will never happen
+                std::cout << "OP_NONE ocurred in move sequence" << std::endl;
+                break;
+            case OP_MOVE_UP:
+                currState = moveEmptyTileUp(&currState);
+                states.push_back(currState);
+                break;
+            case OP_MOVE_DOWN:
+                currState = moveEmptyTileDown(&currState);
+                states.push_back(currState);
+                break;
+            case OP_MOVE_LEFT:
+                currState = moveEmptyTileLeft(&currState);
+                states.push_back(currState);
+                break;
+            case OP_MOVE_RIGHT:
+                currState = moveEmptyTileRight(&currState);
+                states.push_back(currState);
+                break;
+        }
+    }
+
+    int numCols = 5;
+    int numRows = 0;
+    if (states.size() % numCols == 0) {
+        numRows = states.size() / numCols;
+    } else {
+        numRows = (states.size() / numCols) + 1;
+    }
+
+    int numChars = (
+        (numRows * BOARD_SIZE) *                                              // non empty lines
+        (
+            (numCols * (BOARD_SIZE + BOARD_SIZE - 1) + ((numCols - 1) * 3)) + // 3 spaces between each col
+            1                                                                 // newline at the end of each non empty row
+        ) +
+        (numRows - 1)                                                         // empty lines
+    );
+
+    // allocate one more char, needed for the null terminator
+    char *display = new char[numChars + 1];
+
+    // put in the null terminator
+    display[numChars] = '\0';
+
+    for (int i = 0; i < numChars; i++) {
+        display[i] = ' ';
+    }
+
+    // put in the newlines
+    for (int row = 0; row < numRows; row++) {
+        for (int subRow = 0; subRow < BOARD_SIZE; subRow++) {
+            display[
+                (row * BOARD_SIZE + subRow) * (numCols * (BOARD_SIZE + BOARD_SIZE - 1) + ((numCols - 1) * 3) + 1) + // non blank lines
+                row +                                                                                               // blank line between rows
+                (numCols * (BOARD_SIZE + BOARD_SIZE - 1) + ((numCols - 1) * 3))                                     // go to the end of the current line
+            ] = '\n';
+        }
+        if (row < numRows - 1) {
+            display[
+                (row * BOARD_SIZE + (BOARD_SIZE - 1)) * (numCols * (BOARD_SIZE + BOARD_SIZE - 1) + ((numCols - 1) * 3) + 1) + // non blank lines
+                row +                                                                                                         // blank line between rows
+                (numCols * (BOARD_SIZE + BOARD_SIZE - 1) + ((numCols - 1) * 3)) +                                             // go to the end of the current line
+                1
+            ] = '\n';
+        }
+    }
+
+    // draw each state
+    for (unsigned int stateIdx = 0; stateIdx < states.size(); stateIdx++) {
+        State currState = states.at(stateIdx);
+
+        // determine row and column in grid
+        int row = stateIdx / numCols;
+        int col = stateIdx % numCols;
+
+        // determine char row and char col of top left corner where the state
+        // should be drawn
+        int charIdxUpperLeft = (
+            (row * BOARD_SIZE) * (numCols * (BOARD_SIZE + BOARD_SIZE - 1) + ((numCols - 1) * 3) + 1) + // non blank lines
+            row +                                                                                      // blank line between rows
+            col * ((BOARD_SIZE + BOARD_SIZE - 1) + 3)                                                  // plus 3 for 3 spaces in between each state
+        );
+
+        for (int subRow = 0; subRow < BOARD_SIZE; subRow++) {
+            for (int subCol = 0; subCol < BOARD_SIZE; subCol++) {
+                int tile = currState.getTile(subRow, subCol);
+                char tileChar = stringifyTile(tile)[0];
+                display[
+                    charIdxUpperLeft +
+                    subRow * (numCols * (BOARD_SIZE + BOARD_SIZE - 1) + ((numCols - 1) * 3) + 1) +
+                    subCol * 2
+                ] = tileChar;
+
+                // put a space after the tile, but only if this is not the end
+                // of a row
+                if (!(col == numCols - 1 && subCol == BOARD_SIZE - 1)) {
+                    display[
+                        charIdxUpperLeft +
+                        subRow * (numCols * (BOARD_SIZE + BOARD_SIZE - 1) + ((numCols - 1) * 3) + 1) +
+                        subCol * 2 +
+                        1
+                    ] = ' ';
+                }
+            }
+
+            // insert space within row, but don't overwrite the newline
+            if (col < numCols - 1) {
+                display[
+                    charIdxUpperLeft +
+                    subRow * (numCols * (BOARD_SIZE + BOARD_SIZE - 1) + ((numCols - 1) * 3) + 1) +
+                    (BOARD_SIZE + BOARD_SIZE - 1)
+                ] = ' ';
+                display[
+                    charIdxUpperLeft +
+                    subRow * (numCols * (BOARD_SIZE + BOARD_SIZE - 1) + ((numCols - 1) * 3) + 1) +
+                    (BOARD_SIZE + BOARD_SIZE - 1) +
+                    1
+                ] = ' ';
+                display[
+                    charIdxUpperLeft +
+                    subRow * (numCols * (BOARD_SIZE + BOARD_SIZE - 1) + ((numCols - 1) * 3) + 1) +
+                    (BOARD_SIZE + BOARD_SIZE - 1) +
+                    2
+                ] = ' ';
+            }
+        }
+    }
+
+    // print out the display
+    std::cout << display;
 }
