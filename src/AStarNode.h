@@ -33,7 +33,7 @@ class AStarNode {
         int cachedPathLength;
 
     public:
-        AStarNode(Operator op, State *state);
+        AStarNode(Operator op, State *state, AStarNode *parent);
 
         // getters
         Operator getOp();

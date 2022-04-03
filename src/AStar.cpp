@@ -1,6 +1,7 @@
 #include "AStar.h"
 
 #include <algorithm>
+#include <iostream>
 
 void astar(
     State *initialState,
@@ -10,7 +11,6 @@ void astar(
 ) {
     // create the astar tree
     AStarTree tree(initialState);
-
     // step 1
     // form a one-element queue consisting of a zero-length path that contains
     // only the root node
@@ -108,7 +108,11 @@ void createNewPaths(std::vector<AStarNode *> *queue, AStarNode *terminal) {
     // try moving up
     if (canMoveEmptyTileUp(terminalState)) {
         State upState = moveEmptyTileUp(terminalState);
-        AStarNode *upNode = new AStarNode(OP_MOVE_UP, &upState);
+        AStarNode *upNode = new AStarNode(
+            OP_MOVE_UP,
+            &upState,
+            terminal
+        );
         terminal->addChild(upNode);
         queue->push_back(upNode);
     }
@@ -116,7 +120,11 @@ void createNewPaths(std::vector<AStarNode *> *queue, AStarNode *terminal) {
     // try moving down
     if (canMoveEmptyTileDown(terminalState)) {
         State downState = moveEmptyTileDown(terminalState);
-        AStarNode *downNode = new AStarNode(OP_MOVE_DOWN, &downState);
+        AStarNode *downNode = new AStarNode(
+            OP_MOVE_DOWN,
+            &downState,
+            terminal
+        );
         terminal->addChild(downNode);
         queue->push_back(downNode);
     }
@@ -124,7 +132,11 @@ void createNewPaths(std::vector<AStarNode *> *queue, AStarNode *terminal) {
     // try moving left
     if (canMoveEmptyTileLeft(terminalState)) {
         State leftState = moveEmptyTileLeft(terminalState);
-        AStarNode *leftNode = new AStarNode(OP_MOVE_LEFT, &leftState);
+        AStarNode *leftNode = new AStarNode(
+            OP_MOVE_LEFT,
+            &leftState,
+            terminal
+        );
         terminal->addChild(leftNode);
         queue->push_back(leftNode);
     }
@@ -132,7 +144,11 @@ void createNewPaths(std::vector<AStarNode *> *queue, AStarNode *terminal) {
     // try moving right
     if (canMoveEmptyTileRight(terminalState)) {
         State rightState = moveEmptyTileRight(terminalState);
-        AStarNode *rightNode = new AStarNode(OP_MOVE_RIGHT, &rightState);
+        AStarNode *rightNode = new AStarNode(
+            OP_MOVE_RIGHT,
+            &rightState,
+            terminal
+        );
         terminal->addChild(rightNode);
         queue->push_back(rightNode);
     }

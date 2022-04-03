@@ -1,11 +1,14 @@
 #include "AStarNode.h"
 
-AStarNode::AStarNode(Operator op, State *state) {
+AStarNode::AStarNode(Operator op, State *state, AStarNode *parent) {
     // set the operator that got us here in the a star tree
     this->op = op;
 
     // set the state of this node in the a star tree
     this->state = *state;
+
+    // set the parent of this node
+    this->parent = parent;
 
     // initialize the cached path length to -1 so we will know if it has been
     // computed yet or not (the minimum is zero if it was computed)

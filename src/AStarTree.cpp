@@ -4,7 +4,7 @@ void freeAStarNode(AStarNode *node);
 
 AStarTree::AStarTree(State *initialState) {
     // create root node
-    this->root = new AStarNode(OP_NONE, initialState);
+    this->root = new AStarNode(OP_NONE, initialState, nullptr);
 }
 
 AStarNode *AStarTree::getRoot() {
