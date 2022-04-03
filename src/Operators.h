@@ -1,7 +1,10 @@
 #ifndef OPERATORS_H
 #define OPERATORS_H
 
+#include "Operators.h"
 #include "State.h"
+
+#include <string>
 
 /**
  * enumeration of the valid operations for moving the blank tile
@@ -30,5 +33,10 @@ State moveEmptyTileUp(State *currState);
 State moveEmptyTileDown(State *currState);
 State moveEmptyTileLeft(State *currState);
 State moveEmptyTileRight(State *currState);
+
+/**
+ * convert operator to a string
+ */
+std::string stringifyOperator(Operator op);
 
 #endif

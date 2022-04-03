@@ -1,7 +1,15 @@
+#include "AStar.h"
 #include "State.h"
 #include "Operators.h"
 
 #include <iostream>
+#include <string>
+#include <vector>
+
+/**
+ * print the usage statement to explain how to run the program
+ */
+void printUsage();
 
 /**
  * print a state to the standard output
@@ -10,12 +18,30 @@
  */
 void printState(State *state);
 
-/**
- * read a move from the standard input for manual play
- */
+// human player
+void humanPlayerGame(State *initialState, State *goalState);
 Operator readMoveFromUser();
 
-int main(int arc, char **argv) {
+// astar player
+void astarPlayerGame(State *initialState, State *goalState);
+
+int main(int argc, char **argv) {
+    // handle command line arguments
+    if (argc != 2) {
+        printUsage();
+        return 1;
+    }
+
+    bool humanPlayer = false;
+    if (std::string(argv[1]) == "human") {
+        humanPlayer = true;
+    } else if (std::string(argv[1]) == "astar") {
+        humanPlayer = false;
+    } else {
+        printUsage();
+        return 1;
+    }
+
     std::cout << "8 puzzle" << std::endl;
 
     // initial and final boards
@@ -31,15 +57,48 @@ int main(int arc, char **argv) {
     };
 
     // create initial state and goal state
-    State currState(initialBoard);
+    State initialState(initialBoard);
     State goalState(goalBoard);
 
-    while (currState != goalState) {
+    if (humanPlayer) {
+        humanPlayerGame(&initialState, &goalState);
+    } else {
+        astarPlayerGame(&initialState, &goalState);
+    }
+
+    return 0;
+}
+
+void printUsage() {
+    std::cout << "USAGE:" << std::endl;
+    std::cout << "For human player:" << std::endl;
+    std::cout << "\t./bin/hw3 human" << std::endl;
+    std::cout << "For A* algorithm:" << std::endl;
+    std::cout << "\t./bin/hw3 astar" << std::endl;
+}
+
+void printState(State *state) {
+    for (unsigned int row = 0; row < BOARD_SIZE; row++) {
+        for (unsigned int col = 0; col < BOARD_SIZE; col++) {
+            int tile = state->getTile(row, col);
+            if (tile == EMPTY_TILE) {
+                std::cout << "-" << " ";
+            } else {
+                std::cout << tile << " ";
+            }
+        }
+        std::cout << std::endl;
+    }
+}
+
+void humanPlayerGame(State *initialState, State *goalState) {
+    State currState = *initialState;
+    while (currState != *goalState) {
         std::cout << "current state:" << std::endl;
         printState(&currState);
         std::cout << "--------------------" << std::endl;
         std::cout << "goal state:" << std::endl;
-        printState(&goalState);
+        printState(goalState);
 
         std::cout << std::endl;
 
@@ -87,22 +146,6 @@ int main(int arc, char **argv) {
     }
 
     std::cout << "you win" << std::endl;
-
-    return 0;
-}
-
-void printState(State *state) {
-    for (unsigned int row = 0; row < BOARD_SIZE; row++) {
-        for (unsigned int col = 0; col < BOARD_SIZE; col++) {
-            int tile = state->getTile(row, col);
-            if (tile == EMPTY_TILE) {
-                std::cout << "-" << " ";
-            } else {
-                std::cout << tile << " ";
-            }
-        }
-        std::cout << std::endl;
-    }
 }
 
 Operator readMoveFromUser() {
@@ -138,5 +181,22 @@ Operator readMoveFromUser() {
     }
 
     // make the compiler happy
-    return OP_MOVE_UP;
+    return OP_NONE;
+}
+
+void astarPlayerGame(State *initialState, State *goalState) {
+    std::cout << "initial state:" << std::endl;
+    printState(initialState);
+    std::cout << "--------------------" << std::endl;
+    std::cout << "goal state:" << std::endl;
+    printState(goalState);
+
+    std::cout << std::endl;
+
+    std::cout << "winning moves:" << std::endl;
+    std::vector<Operator> winningMoves;
+    astar(initialState, goalState, heuristic1, &winningMoves);
+    for (unsigned int i = 0; i < winningMoves.size(); i++) {
+        std::cout << stringifyOperator(winningMoves.at(i)) << std::endl;
+    }
 }

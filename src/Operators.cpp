@@ -47,3 +47,21 @@ State moveEmptyTileRight(State *currState) {
     // create a new state with the empty tile and the tile right swapped
     return State(currState, row, col + 1);
 }
+
+std::string stringifyOperator(Operator op) {
+    switch (op) {
+        case OP_NONE:
+            return "NONE";
+        case OP_MOVE_UP:
+            return "UP";
+        case OP_MOVE_DOWN:
+            return "DOWN";
+        case OP_MOVE_LEFT:
+            return "LEFT";
+        case OP_MOVE_RIGHT:
+            return "RIGHT";
+    }
+
+    // make the compiler happy
+    return "NONE";
+}

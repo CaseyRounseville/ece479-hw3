@@ -3,16 +3,19 @@
 #include <algorithm>
 
 void astar(
-    AStarTree *tree,
+    State *initialState,
     State *goalState,
     int (*heuristicFunction)(State *initialState, State *goalState),
     std::vector<Operator> *outWinningMoves
 ) {
+    // create the astar tree
+    AStarTree tree(initialState);
+
     // step 1
     // form a one-element queue consisting of a zero-length path that contains
     // only the root node
     std::vector<AStarNode *> queue;
-    AStarNode *root = tree->getRoot();
+    AStarNode *root = tree.getRoot();
     queue.push_back(root);
 
     // step 2

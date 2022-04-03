@@ -11,15 +11,14 @@
 /**
  * find an optimal solution to the 8 puzzle using the a star algorithm
  * 
- * @param tree the a star tree, which must contain only the root node at the
- * beginning, and the root node must contain the initial state
+ * @param initialState the initial state of the board
  * @param goalState the state of the board that we are trying to reach
  * @param outWinningMoves the output vector where to put the sequence of
  * operators that forms an optimal solution to the 8 puzzle, getting from the
  * initial state to the goal state
  */
 void astar(
-    AStarTree *tree,
+    State *initialState,
     State *goalState,
     int (*heuristicFunction)(State *initialState, State *goalState),
     std::vector<Operator> *outWinningMoves
