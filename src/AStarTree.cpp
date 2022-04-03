@@ -2,8 +2,13 @@
 
 void freeAStarNode(AStarNode *node);
 
-AStarTree::AStarTree() {
+AStarTree::AStarTree(State *initialState) {
+    // create root node
+    this->root = new AStarNode(OP_NONE, initialState);
+}
 
+AStarNode *AStarTree::getRoot() {
+    return this->root;
 }
 
 AStarTree::~AStarTree() {

@@ -7,6 +7,7 @@
  * enumeration of the valid operations for moving the blank tile
  */
 enum Operator {
+    OP_NONE,
     OP_MOVE_UP,
     OP_MOVE_DOWN,
     OP_MOVE_LEFT,

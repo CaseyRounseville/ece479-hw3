@@ -47,6 +47,10 @@ int main(int arc, char **argv) {
         Operator move = readMoveFromUser();
 
         switch (move) {
+            case OP_NONE:
+                // this will never happen
+                std::cout << "OP_NONE happened" << std::endl;
+                break;
             case OP_MOVE_UP:
                 if (canMoveEmptyTileUp(&currState)) {
                     currState = moveEmptyTileUp(&currState);

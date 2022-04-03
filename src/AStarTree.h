@@ -17,7 +17,11 @@ class AStarTree {
         AStarNode *root;
 
     public:
-        AStarTree();
+        AStarTree(State *initialState);
+
+        // getters
+        AStarNode *getRoot();
+
         ~AStarTree();
 };
 
