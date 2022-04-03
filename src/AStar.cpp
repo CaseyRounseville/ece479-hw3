@@ -1,6 +1,6 @@
 #include "AStar.h"
 
-void astar(Graph *graph, State *goalState) {
+void astar(AStarTree *graph, State *goalState) {
 
 }
 

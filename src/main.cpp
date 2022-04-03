@@ -3,9 +3,16 @@
 
 #include <iostream>
 
+/**
+ * print a state to the standard output
+ * 
+ * @param state the state to print out
+ */
 void printState(State *state);
 
-// stuff for manual use
+/**
+ * read a move from the standard input for manual play
+ */
 Operator readMoveFromUser();
 
 int main(int arc, char **argv) {
@@ -95,7 +102,7 @@ void printState(State *state) {
 }
 
 Operator readMoveFromUser() {
-    // read characters until either
+    // read characters until a valid move
     char c = '\0';
     while (
         c != 'u' && c != 'U' &&
