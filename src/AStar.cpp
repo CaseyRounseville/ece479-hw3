@@ -191,26 +191,26 @@ void removeNewPathsWithLoops(
         AStarNode *terminal = queue->at(terminalIdx);
         State *terminalState = terminal->getState();
 
-        if (statesSeenSoFar->find(*terminalState) != statesSeenSoFar->end()) {
-            queue->erase(queue->begin() + terminalIdx);
-            terminalIdx--;
-        }
-
-        // // check the state of the terminal node against the states of all nodes
-        // // that came before it to detect a loop
-        // AStarNode *currAncestor = terminal->getParent();
-        // while (currAncestor != nullptr) {
-        //     if (*currAncestor->getState() == *terminalState) {
-        //         // we have detected a loop, so remove the terminal from the
-        //         // queue
-        //         queue->erase(queue->begin() + terminalIdx);
-        //         terminalIdx--;
-        //         break;
-        //     }
-
-        //     // move up the tree by one move
-        //     currAncestor = currAncestor->getParent();
+        // if (statesSeenSoFar->find(*terminalState) != statesSeenSoFar->end()) {
+        //     queue->erase(queue->begin() + terminalIdx);
+        //     terminalIdx--;
         // }
+
+        // check the state of the terminal node against the states of all nodes
+        // that came before it to detect a loop
+        AStarNode *currAncestor = terminal->getParent();
+        while (currAncestor != nullptr) {
+            if (*currAncestor->getState() == *terminalState) {
+                // we have detected a loop, so remove the terminal from the
+                // queue
+                queue->erase(queue->begin() + terminalIdx);
+                terminalIdx--;
+                break;
+            }
+
+            // move up the tree by one move
+            currAncestor = currAncestor->getParent();
+        }
     }
 }
 
