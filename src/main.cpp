@@ -5,6 +5,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <chrono>
 
 /**
  * print the usage statement to explain how to run the program
@@ -23,21 +24,38 @@ void humanPlayerGame(State *initialState, State *goalState);
 Operator readMoveFromUser();
 
 // astar player
-void astarPlayerGame(State *initialState, State *goalState);
+void astarPlayerGame(State *initialState, State *goalState, int (*heuristicFunction)(State *initialState, State *goalState));
 void astarDisplay(State *initialstate, std::vector<Operator> *moves);
 
 int main(int argc, char **argv) {
     // handle command line arguments
-    if (argc != 2) {
+    if (argc < 2) {
         printUsage();
         return 1;
     }
 
     bool humanPlayer = false;
+    int (*heuristicFunction)(State *initialState, State *goalState);
     if (std::string(argv[1]) == "human") {
         humanPlayer = true;
+        heuristicFunction = nullptr;
     } else if (std::string(argv[1]) == "astar") {
+        if (argc != 3) {
+            printUsage();
+            return 1;
+        }
         humanPlayer = false;
+        std::string heuristicStr = std::string(argv[2]);
+        if (heuristicStr == "1") {
+            heuristicFunction = heuristic1;
+        } else if (heuristicStr == "2") {
+            heuristicFunction = heuristic2;
+        } else if (heuristicStr == "3") {
+            heuristicFunction = heuristic3;
+        } else {
+            printUsage();
+            return 1;
+        }
     } else {
         printUsage();
         return 1;
@@ -52,9 +70,9 @@ int main(int argc, char **argv) {
         { 7, -1, 5 }
     };
     int goalBoard[BOARD_SIZE][BOARD_SIZE] = {
-        { 5, 2, 3 },
+        { 1, 2, 3 },
         { 8, -1, 4 },
-        { 7, 6, 1 }
+        { 7, 6, 5 }
     };
 
     // create initial state and goal state
@@ -64,7 +82,7 @@ int main(int argc, char **argv) {
     if (humanPlayer) {
         humanPlayerGame(&initialState, &goalState);
     } else {
-        astarPlayerGame(&initialState, &goalState);
+        astarPlayerGame(&initialState, &goalState, heuristicFunction);
     }
 
     return 0;
@@ -75,7 +93,9 @@ void printUsage() {
     std::cout << "For human player:" << std::endl;
     std::cout << "\t./bin/hw3 human" << std::endl;
     std::cout << "For A* algorithm:" << std::endl;
-    std::cout << "\t./bin/hw3 astar" << std::endl;
+    std::cout << "\t./bin/hw3 astar 1" << std::endl;
+    std::cout << "\t./bin/hw3 astar 2" << std::endl;
+    std::cout << "\t./bin/hw3 astar 3" << std::endl;
 }
 
 void printState(State *state) {
@@ -181,7 +201,7 @@ Operator readMoveFromUser() {
     return OP_NONE;
 }
 
-void astarPlayerGame(State *initialState, State *goalState) {
+void astarPlayerGame(State *initialState, State *goalState, int (*heuristicFunction)(State *initialState, State *goalState)) {
     std::cout << "initial state:" << std::endl;
     printState(initialState);
     std::cout << "--------------------" << std::endl;
@@ -192,12 +212,19 @@ void astarPlayerGame(State *initialState, State *goalState) {
 
     std::cout << "winning moves:" << std::endl;
     std::vector<Operator> winningMoves;
+
+    auto startTime = std::chrono::high_resolution_clock::now();
     astar(initialState, goalState, heuristic3, &winningMoves);
+    auto stopTime = std::chrono::high_resolution_clock::now();
+    auto durationTime = std::chrono::duration_cast<std::chrono::microseconds>(stopTime - startTime);
+
     for (unsigned int i = 0; i < winningMoves.size(); i++) {
         std::cout << stringifyOperator(winningMoves.at(i)) << std::endl;
     }
 
     astarDisplay(initialState, &winningMoves);
+    std::cout << std::endl;
+    std::cout << "time elapsed: " << durationTime.count() << " microseconds" << std::endl;
 }
 
 void astarDisplay(State *initialstate, std::vector<Operator> *moves) {
